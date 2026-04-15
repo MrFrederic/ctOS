@@ -81,14 +81,21 @@ pressing Enter will trigger `onSucceeded()` so you can verify animations end-to-
 > lock you out of your session.
 
 ```bash
-# Plasma 6
-kwriteconfig6 --file kscreenlockerrc --group Greeter --key QmlPath \
-    ~/.local/share/plasma/shells/ctos.lockscreen/contents/lockscreen/LockScreen.qml
-# Then test with a real lock:
+# Tell kscreenlocker_greet to use our shell (reads plasmashellrc [Shell] ShellPackage)
+kwriteconfig6 --file plasmashellrc --group Shell --key ShellPackage ctos.lockscreen
+```
+
+Then lock your session to verify:
+
+```bash
 loginctl lock-session
 ```
 
-Or via **System Settings → Colors & Themes → Global Theme → Lock Screen**.
+To revert to the default KDE lock screen:
+
+```bash
+kwriteconfig6 --file plasmashellrc --group Shell --key ShellPackage org.kde.plasma.desktop
+```
 
 ---
 
