@@ -1,0 +1,17 @@
+{
+    "KPackageStructure": "Plasma/Shell",
+    "KPlugin": {
+        "Id": "ctos.lockscreen",
+        "Name": "ctOS Lock Screen",
+        "Description": "A lock screen inspired by the ctOS (Watch Dogs) aesthetic. KDE Plasma port of the ctOS Quickshell greeter.",
+        "Authors": [
+            {
+                "Name": "mrfrederic"
+            }
+        ],
+        "License": "GPL-2.0-or-later",
+        "Version": "1.0",
+        "Website": "https://github.com/mrfrederic/ctos"
+    },
+    "X-Plasma-APIVersion": "2"
+}
