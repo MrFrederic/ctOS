@@ -72,19 +72,13 @@ Item {
         function onFailed(kind) {
             if (kind === 0) {
                 root.authState = root.stateFailed;
-                failResetTimer.restart();
+                // graceLockTimer restarts PAM after 3 s (matching the default
+                // KDE lock screen's graceLockTimer interval). Starting too soon
+                // causes PAM to log "Authentication attempt too soon".
+                graceLockTimer.restart();
             }
-            // Non-interactive failures (fingerprint/smartcard) are silent — we
-            // just wait for the password field or the next NFC/fingerprint attempt.
         }
 
-        // PAM is prompting for input (e.g. password prompt text)
-        function onPromptChanged(msg) {
-            // If PAM is prompting and we are in Loading state, nothing to do
-            // — the user's respond() call is already in flight.
-        }
-
-        // Grace lock ended — screen locked for real now
         function onGraceLockedChanged() {
             if (typeof authenticator !== "undefined" && !authenticator.graceLocked) {
                 root.authState = root.stateReady;
@@ -92,17 +86,15 @@ Item {
         }
     }
 
-    // Reset Failed → Ready after a short visual delay, then restart the PAM
-    // conversation so the next respond() call has an active session to talk to.
+    // Matches the default KDE lock screen's graceLockTimer: after a failed
+    // attempt wait 3 s, restart the PAM conversation, then re-enable the field.
     Timer {
-        id: failResetTimer
-        interval: 900
+        id: graceLockTimer
+        interval: 3000
         onTriggered: {
-            if (root.authState === root.stateFailed) {
-                root.authState = root.stateReady;
-                if (typeof authenticator !== "undefined")
-                    authenticator.startAuthenticating();
-            }
+            if (typeof authenticator !== "undefined")
+                authenticator.startAuthenticating();
+            root.authState = root.stateReady;
         }
     }
 
