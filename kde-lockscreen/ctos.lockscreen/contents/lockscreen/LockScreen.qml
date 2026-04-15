@@ -92,13 +92,17 @@ Item {
         }
     }
 
-    // Reset Failed → Ready after a short visual delay.
+    // Reset Failed → Ready after a short visual delay, then restart the PAM
+    // conversation so the next respond() call has an active session to talk to.
     Timer {
         id: failResetTimer
         interval: 900
         onTriggered: {
-            if (root.authState === root.stateFailed)
+            if (root.authState === root.stateFailed) {
                 root.authState = root.stateReady;
+                if (typeof authenticator !== "undefined")
+                    authenticator.startAuthenticating();
+            }
         }
     }
 
