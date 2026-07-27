@@ -89,6 +89,26 @@ All that's required for the session locker is that you run this command, the `CT
 CTOS_MODE=lockd quickshell --path /opt/ctos/greeter.qml
 ```
 
+### 5. KDE Wallet Auto-Unlock (KDE Plasma only)
+
+Distros that ship `sddm` put `pam_kwallet5` in `/etc/pam.d/sddm`, so KDE Wallet unlocks with your login password. Swapping to `greetd` loses that and Plasma starts prompting for the wallet password after login. Add it to `/etc/pam.d/greetd` instead:
+
+```
+auth       include      system-local-login
+-auth      optional     pam_kwallet5.so
+
+...
+
+session    include      system-local-login
+-session   optional     pam_kwallet5.so         force_run
+```
+
+`force_run` is required. `pam_kwallet5` decides a session is graphical from `PAM_XDISPLAY` / `XDG_SESSION_TYPE`, and under `greetd` neither is set at session-open time, so without it the module logs `not a graphical session, skipping` and never creates its socket.
+
+The `-` prefixes make PAM ignore the lines if `kwallet-pam` isn't installed, so there is no lockout path. Verify with `ls /run/user/$UID/kwallet5.socket` after logging in.
+
+> _Note_: configs copied from elsewhere often pass `auto_start` too. Current `kwallet-pam` doesn't parse it — only `kdehome=`, `kwalletd=`, `socketPath=` and `force_run` — so it does nothing.
+
 <br>
 
 ## Configuration
